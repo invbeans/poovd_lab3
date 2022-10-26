@@ -499,7 +499,7 @@ namespace poovd_lab3
             if(image != null)
             {
                 barCharts charts = new barCharts(image, img, vertX, horizY);
-                charts.ShowDialog();
+                charts.Show();
             }
         }
     }

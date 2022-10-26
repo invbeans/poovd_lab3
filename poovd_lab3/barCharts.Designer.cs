@@ -29,27 +29,49 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.StripLine stripLine1 = new System.Windows.Forms.DataVisualization.Charting.StripLine();
+            System.Windows.Forms.DataVisualization.Charting.StripLine stripLine2 = new System.Windows.Forms.DataVisualization.Charting.StripLine();
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.brightChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.гистограммыСечениToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.гистограммаВертикальногоСеченияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.гистограммаГоризонтальногоСеченияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.changeLeft = new System.Windows.Forms.GroupBox();
+            this.leftOptions = new System.Windows.Forms.ComboBox();
             this.changeRight = new System.Windows.Forms.GroupBox();
             this.rightOptions = new System.Windows.Forms.ComboBox();
-            this.leftOptions = new System.Windows.Forms.ComboBox();
+            this.horizChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.vertChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.brightChart)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.changeLeft.SuspendLayout();
             this.changeRight.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.horizChart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.vertChart)).BeginInit();
             this.SuspendLayout();
             // 
             // brightChart
             // 
+            chartArea1.AxisX.IsLabelAutoFit = false;
+            stripLine1.BackColor = System.Drawing.Color.Maroon;
+            stripLine1.IntervalOffset = 245D;
+            stripLine1.StripWidth = 1D;
+            stripLine2.BackColor = System.Drawing.Color.Green;
+            stripLine2.IntervalOffset = 10D;
+            stripLine2.StripWidth = 1D;
+            chartArea1.AxisX.StripLines.Add(stripLine1);
+            chartArea1.AxisX.StripLines.Add(stripLine2);
             chartArea1.Name = "ChartArea1";
             this.brightChart.ChartAreas.Add(chartArea1);
+            legend1.Enabled = false;
             legend1.Name = "Legend1";
             this.brightChart.Legends.Add(legend1);
             this.brightChart.Location = new System.Drawing.Point(77, 80);
@@ -57,7 +79,6 @@
             this.brightChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Pastel;
             series1.ChartArea = "ChartArea1";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Area;
-            series1.IsVisibleInLegend = false;
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.brightChart.Series.Add(series1);
@@ -109,6 +130,19 @@
             this.changeLeft.TabStop = false;
             this.changeLeft.Text = "Замена левее движка L";
             // 
+            // leftOptions
+            // 
+            this.leftOptions.FormattingEnabled = true;
+            this.leftOptions.Items.AddRange(new object[] {
+            "Считать равными R",
+            "Считать равными максимальному значению 255",
+            "Считать равными 0",
+            "Отображать в диапазон [0, 255]"});
+            this.leftOptions.Location = new System.Drawing.Point(16, 35);
+            this.leftOptions.Name = "leftOptions";
+            this.leftOptions.Size = new System.Drawing.Size(348, 24);
+            this.leftOptions.TabIndex = 2;
+            // 
             // changeRight
             // 
             this.changeRight.Controls.Add(this.rightOptions);
@@ -129,27 +163,54 @@
             "Отображать в диапазон [0, 255]"});
             this.rightOptions.Location = new System.Drawing.Point(17, 35);
             this.rightOptions.Name = "rightOptions";
-            this.rightOptions.Size = new System.Drawing.Size(121, 24);
+            this.rightOptions.Size = new System.Drawing.Size(332, 24);
             this.rightOptions.TabIndex = 0;
             // 
-            // leftOptions
+            // horizChart
             // 
-            this.leftOptions.FormattingEnabled = true;
-            this.leftOptions.Items.AddRange(new object[] {
-            "Считать равными R",
-            "Считать равными максимальному значению 255",
-            "Считать равными 0",
-            "Отображать в диапазон [0, 255]"});
-            this.leftOptions.Location = new System.Drawing.Point(16, 35);
-            this.leftOptions.Name = "leftOptions";
-            this.leftOptions.Size = new System.Drawing.Size(121, 24);
-            this.leftOptions.TabIndex = 2;
+            chartArea2.Name = "ChartArea1";
+            this.horizChart.ChartAreas.Add(chartArea2);
+            legend2.Enabled = false;
+            legend2.Name = "Legend1";
+            this.horizChart.Legends.Add(legend2);
+            this.horizChart.Location = new System.Drawing.Point(77, 80);
+            this.horizChart.Name = "horizChart";
+            this.horizChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Pastel;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Area;
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.horizChart.Series.Add(series2);
+            this.horizChart.Size = new System.Drawing.Size(743, 519);
+            this.horizChart.TabIndex = 4;
+            this.horizChart.Text = "chart1";
+            // 
+            // vertChart
+            // 
+            chartArea3.Name = "ChartArea1";
+            this.vertChart.ChartAreas.Add(chartArea3);
+            legend3.Enabled = false;
+            legend3.Name = "Legend1";
+            this.vertChart.Legends.Add(legend3);
+            this.vertChart.Location = new System.Drawing.Point(77, 80);
+            this.vertChart.Name = "vertChart";
+            this.vertChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Pastel;
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Area;
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            this.vertChart.Series.Add(series3);
+            this.vertChart.Size = new System.Drawing.Size(743, 519);
+            this.vertChart.TabIndex = 5;
+            this.vertChart.Text = "chart1";
             // 
             // barCharts
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(895, 731);
+            this.Controls.Add(this.vertChart);
+            this.Controls.Add(this.horizChart);
             this.Controls.Add(this.changeRight);
             this.Controls.Add(this.changeLeft);
             this.Controls.Add(this.brightChart);
@@ -162,6 +223,8 @@
             this.menuStrip1.PerformLayout();
             this.changeLeft.ResumeLayout(false);
             this.changeRight.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.horizChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.vertChart)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -178,5 +241,7 @@
         private System.Windows.Forms.GroupBox changeRight;
         private System.Windows.Forms.ComboBox leftOptions;
         private System.Windows.Forms.ComboBox rightOptions;
+        private System.Windows.Forms.DataVisualization.Charting.Chart horizChart;
+        private System.Windows.Forms.DataVisualization.Charting.Chart vertChart;
     }
 }
