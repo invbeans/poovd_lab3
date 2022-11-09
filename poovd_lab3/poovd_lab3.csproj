@@ -48,11 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="barCharts.cs">
+    <Compile Include="BarCharts.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="barCharts.Designer.cs">
-      <DependentUpon>barCharts.cs</DependentUpon>
+    <Compile Include="BarCharts.Designer.cs">
+      <DependentUpon>BarCharts.cs</DependentUpon>
     </Compile>
     <Compile Include="ByteImage.cs" />
     <Compile Include="ZoomImage.cs" />
@@ -64,8 +64,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="barCharts.resx">
-      <DependentUpon>barCharts.cs</DependentUpon>
+    <EmbeddedResource Include="BarCharts.resx">
+      <DependentUpon>BarCharts.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

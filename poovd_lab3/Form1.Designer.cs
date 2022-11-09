@@ -211,7 +211,7 @@
             this.coordinatesBox.Controls.Add(this.brightValue);
             this.coordinatesBox.Controls.Add(this.xValue);
             this.coordinatesBox.Controls.Add(this.yValue);
-            this.coordinatesBox.Location = new System.Drawing.Point(11, 585);
+            this.coordinatesBox.Location = new System.Drawing.Point(0, 647);
             this.coordinatesBox.Margin = new System.Windows.Forms.Padding(2);
             this.coordinatesBox.Name = "coordinatesBox";
             this.coordinatesBox.Padding = new System.Windows.Forms.Padding(2);
@@ -305,7 +305,7 @@
             this.imagePanel.Location = new System.Drawing.Point(0, 77);
             this.imagePanel.Margin = new System.Windows.Forms.Padding(2);
             this.imagePanel.Name = "imagePanel";
-            this.imagePanel.Size = new System.Drawing.Size(521, 504);
+            this.imagePanel.Size = new System.Drawing.Size(521, 566);
             this.imagePanel.TabIndex = 6;
             // 
             // imageContainer
@@ -334,7 +334,7 @@
             this.zoomBox.Controls.Add(this.zoom3Button);
             this.zoomBox.Controls.Add(this.zoom2Button);
             this.zoomBox.Controls.Add(this.zoom1Button);
-            this.zoomBox.Location = new System.Drawing.Point(722, 525);
+            this.zoomBox.Location = new System.Drawing.Point(722, 602);
             this.zoomBox.Margin = new System.Windows.Forms.Padding(2);
             this.zoomBox.Name = "zoomBox";
             this.zoomBox.Padding = new System.Windows.Forms.Padding(2);
@@ -385,7 +385,7 @@
             // zoomMethod
             // 
             this.zoomMethod.AutoSize = true;
-            this.zoomMethod.Location = new System.Drawing.Point(725, 603);
+            this.zoomMethod.Location = new System.Drawing.Point(725, 680);
             this.zoomMethod.Margin = new System.Windows.Forms.Padding(2);
             this.zoomMethod.Name = "zoomMethod";
             this.zoomMethod.Size = new System.Drawing.Size(148, 20);
@@ -397,7 +397,7 @@
             // normalizeBox
             // 
             this.normalizeBox.AutoSize = true;
-            this.normalizeBox.Location = new System.Drawing.Point(725, 627);
+            this.normalizeBox.Location = new System.Drawing.Point(725, 704);
             this.normalizeBox.Margin = new System.Windows.Forms.Padding(2);
             this.normalizeBox.Name = "normalizeBox";
             this.normalizeBox.Size = new System.Drawing.Size(118, 20);
@@ -427,19 +427,19 @@
             // 
             // openCharts
             // 
-            this.openCharts.Location = new System.Drawing.Point(732, 661);
+            this.openCharts.Location = new System.Drawing.Point(732, 738);
             this.openCharts.Name = "openCharts";
             this.openCharts.Size = new System.Drawing.Size(208, 34);
             this.openCharts.TabIndex = 13;
             this.openCharts.Text = "Окно гистаграмм";
             this.openCharts.UseVisualStyleBackColor = true;
-            this.openCharts.Click += new System.EventHandler(this.openCharts_Click);
+            this.openCharts.Click += new System.EventHandler(this.OpenCharts_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1165, 717);
+            this.ClientSize = new System.Drawing.Size(1219, 786);
             this.Controls.Add(this.openCharts);
             this.Controls.Add(this.altText);
             this.Controls.Add(this.overviewContainer);

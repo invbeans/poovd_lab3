@@ -26,7 +26,7 @@ namespace poovd_lab3
 
         //img - переменная для хранения построенных с помощью методов
         //класса ByteImage изображений
-        private Bitmap img;
+        public Bitmap img;
 
         //zoomImage - объект класса, предоставляющего методы для работы с изображениями формата Bitmap
         private ZoomImage zoomImage;
@@ -39,11 +39,13 @@ namespace poovd_lab3
         private Pen pen = new Pen(Color.Red, 3);
 
         //координата y для горизонтального
-        int horizY = 10;
+        public int horizY = 10;
         bool moveHorizLine = false;
         //координата x для вертикального
-        int vertX = 10;
+        public int vertX = 10;
         bool moveVertLine = false;
+
+        BarCharts charts;
         //конструктор формы с инициализацией приложения и подключение
         //описанных ниже обработчиков событий к элементам управления
         public Form1()
@@ -60,6 +62,10 @@ namespace poovd_lab3
             imageContainer.MouseDoubleClick += ImageContainer_DoubleClick;
             imageContainer.MouseDown += ImageContainer_MouseDown;
             imageContainer.MouseUp += ImageContainer_MouseUp;
+
+            //charts = new BarCharts();
+            //charts.changeRange += ChangeBrightness;
+            
         }
 
         private void Form1_Load(object sender, EventArgs e) { }
@@ -143,7 +149,7 @@ namespace poovd_lab3
             else return false;
         }
 
-        private void drawSections(Bitmap temp)
+        private void DrawSections(Bitmap temp)
         {
             using (var g = Graphics.FromImage(temp))
             {
@@ -153,12 +159,55 @@ namespace poovd_lab3
             imageContainer.Image = temp;
         }
 
+        public void ChangeBrightness(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, bool normalize)
+        {
+            //замена яркостей за диапазоном граничной
+            //это только тест, нужно прикрутить опции
+            Bitmap temp = new Bitmap(img);
+            if (normalize) NormalizeInRange(curLeft, curRight, temp);
+            else ChangeOutRange(curLeft, curRight, newLeft, newRight, temp);
+            DrawSections(temp);
+        }
+
+        private void ChangeOutRange(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, Bitmap temp) {
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    ushort current = temp.GetPixel(x, y).B;
+                    if (current < curLeft)
+                    {
+                        temp.SetPixel(x, y, Color.FromArgb(newLeft, newLeft, newLeft));
+                    }
+                    if (current > curRight)
+                    {
+                        temp.SetPixel(x, y, Color.FromArgb(newRight, newRight, newRight));
+                    }
+                }
+            }
+        }
+
+        private void NormalizeInRange(ushort curLeft, ushort curRight, Bitmap temp) {
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    ushort current = temp.GetPixel(x, y).B;
+                    if(current > curLeft && current < curRight)
+                    {
+                        ushort newBright = (ushort)((current - curLeft) * 255 / (curRight - curLeft));
+                        temp.SetPixel(x, y, Color.FromArgb(newBright, newBright, newBright));
+                    }
+                }
+            }
+        }
+
         //метод отображения всех изображений на экранной форме
-        private void showImages(int shift, int highestRow)
+        private void ShowImages(int shift, int highestRow)
         {
             img = image.GetBitmap(shift, highestRow);
             Bitmap temp = new Bitmap(img);
-            drawSections(temp);
+            DrawSections(temp);
             //построение обзорного изображения по изображению в формате Bitmap
             overviewContainer.Image = image.BuildOverviewImage(shift);
         }
@@ -185,13 +234,15 @@ namespace poovd_lab3
                 //если сдвиг был заранее выбран, он учитывается в построении изображения
 
                 //подстановка изображения и названия файла в окно программы
-                showImages(shift, highestRow);
+                ShowImages(shift, highestRow);
                 //удаление предыдущего увеличенного фрагмента, если он был выбран
                 zoomContainer.Image = null;
                 
                 lineFileName.Text = fileName.Substring(fileName.LastIndexOf(@"\") + 1);
                 //текст с подсказкой становится видимым
                 altText.Visible = true;
+                //charts = new BarCharts(this);
+                charts = null;
             }
         }
 
@@ -203,7 +254,7 @@ namespace poovd_lab3
         {
             if (image != null)
             {
-                showImages(0, highestRow);
+                ShowImages(0, highestRow);
                 //если фрагмент для увеличения выбран, он перестраивается с новым сдвигом
                 if (isZoomChosen)
                 {
@@ -220,7 +271,7 @@ namespace poovd_lab3
         {
             if (image != null)
             {
-                showImages(1, highestRow);
+                ShowImages(1, highestRow);
                 if (isZoomChosen)
                 {
                     BuildZoomedImage(part);
@@ -236,7 +287,7 @@ namespace poovd_lab3
         {
             if (image != null)
             {
-                showImages(2, highestRow);
+                ShowImages(2, highestRow);
                 if (isZoomChosen)
                 {
                     BuildZoomedImage(part);
@@ -290,7 +341,7 @@ namespace poovd_lab3
                     highestRow = highestY;
                     imageContainer.Image = img;
                     Bitmap temp = new Bitmap(img);
-                    drawSections(temp);
+                    DrawSections(temp);
                     //если высота отображаемого изображения меньше 60, фрагмент для увеличения тоже уменьшается
                     width = (image.Height - highestRow < 60) ? image.Height - highestRow : 60;
                     height = width;
@@ -347,18 +398,23 @@ namespace poovd_lab3
         {
             if (image != null)
             {
-                if (moveVertLine)
+                if (moveVertLine || moveHorizLine)
                 {
-                    vertX = e.Location.X;
-                    moveVertLine = false;
+                    if (moveVertLine)
+                    {
+                        vertX = e.Location.X;
+                        moveVertLine = false;
+                    }
+                    if (moveHorizLine)
+                    {
+                        horizY = e.Location.Y;
+                        moveHorizLine = false;
+                    }
+                    Bitmap temp = new Bitmap(img);
+                    DrawSections(temp);
+                   // charts = new BarCharts(this); //?????
                 }
-                if (moveHorizLine)
-                {
-                    horizY = e.Location.Y;
-                    moveHorizLine = false;
-                }
-                Bitmap temp = new Bitmap(img);
-                drawSections(temp);
+                
             }
         }
 
@@ -494,13 +550,24 @@ namespace poovd_lab3
             }
         }
 
-        private void openCharts_Click(object sender, EventArgs e)
+        private void OpenCharts_Click(object sender, EventArgs e)
         {
-            if(image != null)
+            if(image != null && charts == null)
             {
-                barCharts charts = new barCharts(image, img, vertX, horizY);
+                //BarCharts charts = new BarCharts(this, image.brightAmounts, img, vertX, horizY);
+                charts = new BarCharts(this);
+                charts.changeRange += ChangeBrightness;
+                charts.closeCharts += CloseCharts;
                 charts.Show();
             }
+        }
+
+        private void CloseCharts()
+        {
+            charts = null;
+            Bitmap temp = new Bitmap(img);
+            DrawSections(temp);
+            imageContainer.Image = temp;
         }
     }
 }
