@@ -23,8 +23,8 @@ namespace poovd_lab3
         int horizY;
         bool moveLeft = false;
         bool moveRight = false;
-        public event Action<ushort, ushort, ushort, ushort, bool> changeRange;
-        public event Action closeCharts;
+        public event Action<ushort, ushort, ushort, ushort, bool> ChangeRange;
+        public event Action CloseCharts;
         ushort newLeft; ushort newRight;
         bool normalize = false;
         ushort leftX = 0; ushort rightX = 255;
@@ -45,6 +45,8 @@ namespace poovd_lab3
         public BarCharts(Form1 parent): this()
         {
             this.parent = parent;
+            parent.ChangeHorizontal += FillHorizontal;
+            parent.ChangeVertical += FillVertical;
             this.img = parent.img;
             this.vertX = parent.vertX;
             this.horizY = parent.horizY;   
@@ -55,7 +57,7 @@ namespace poovd_lab3
         }
 
         // иксы и какие в них графики
-        public BarCharts(Form1 parent, ushort[] brightAmounts, Bitmap img, int vertX, int horixY): this()
+        /*public BarCharts(Form1 parent, ushort[] brightAmounts, Bitmap img, int vertX, int horixY): this()
         {
             this.parent = parent;
             this.img = img;
@@ -65,16 +67,11 @@ namespace poovd_lab3
             brightChart.Series[0].Points.DataBindY(allImage);
             vertChart.Visible = false;
             horizChart.Visible = false;
-        }
+        }*/
 
         private void гистограммаГоризонтальногоСеченияToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            horizontal = new ushort[img.Width];
-            for(int i = 0; i < horizontal.Length; i++)
-            {
-                horizontal[i] = img.GetPixel(i, horizY).B;
-            }
-            horizChart.Series[0].Points.DataBindY(horizontal);
+            FillHorizontal(horizY);
             horizChart.Visible = true;
             brightChart.Visible = false;
             keepRange.Visible = false;
@@ -85,12 +82,7 @@ namespace poovd_lab3
 
         private void гистограммаВертикальногоСеченияToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            vertical = new ushort[img.Height];
-            for (int i = 0; i < vertical.Length; i++)
-            {
-                vertical[i] = img.GetPixel(vertX, i).B;
-            }
-            vertChart.Series[0].Points.DataBindY(vertical);
+            FillVertical(vertX);
             vertChart.Visible = true;
             brightChart.Visible = false;
             keepRange.Visible = false;
@@ -109,6 +101,28 @@ namespace poovd_lab3
             vertChart.Visible = false; 
             changeLeft.Visible = true;
             changeRight.Visible = true;
+        }
+
+        private void FillVertical(int vertX)
+        {
+            vertical = new ushort[img.Height];
+            for (int i = 0; i < vertical.Length; i++)
+            {
+                vertical[i] = img.GetPixel(vertX, i).B;
+            }
+            vertChart.Series[0].Points.Clear();
+            vertChart.Series[0].Points.DataBindY(vertical);
+        }
+
+        private void FillHorizontal(int horizY)
+        {
+            horizontal = new ushort[img.Width];
+            for (int i = 0; i < horizontal.Length; i++)
+            {
+                horizontal[i] = img.GetPixel(i, horizY).B;
+            }
+            horizChart.Series[0].Points.Clear();
+            horizChart.Series[0].Points.DataBindY(horizontal);
         }
 
         private void brightChart_MouseDown(object sender, MouseEventArgs e)
@@ -171,16 +185,26 @@ namespace poovd_lab3
             {
                 if (moveRight)
                 {
-                    if (leftX > X - 5) moveRight = false;
                     if (keepR) moveBothStripLines(moveLeft, moveRight, X);
+                    if (leftX > X - 5)
+                    {
+                        moveRight = false;
+                        return;
+                    }
+                    
                     brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset = X;
                     rightX = (ushort)X;
                     rightBright.Text = X.ToString();
                 }
                 if (moveLeft)
                 {
-                    if(rightX < X + 5) moveLeft = false;
                     if (keepR) moveBothStripLines(moveLeft, moveRight, X);
+                    if (rightX < X + 5)
+                    {
+                        moveLeft = false;
+                        return;
+                    }
+                    
                     brightChart.ChartAreas[0].AxisX.StripLines[1].IntervalOffset = X;
                     leftX = (ushort)X;
                     leftBright.Text = X.ToString();
@@ -208,7 +232,9 @@ namespace poovd_lab3
             
             if (X >= 0 && X < 256)
             {
-                if (moveRight)
+                if (moveRight) moveRight = false;
+                if (moveLeft) moveLeft = false;
+                /*if (moveRight)
                 {
                     brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset = X;
                     rightX = (ushort)X;
@@ -221,8 +247,8 @@ namespace poovd_lab3
                     leftX = (ushort)X;
                     leftBright.Text = X.ToString();
                     moveLeft = false;
-                }
-                changeRange?.Invoke(leftX, rightX, newLeft, newRight, normalize);
+                }*/
+                ChangeRange?.Invoke(leftX, rightX, newLeft, newRight, normalize);
             }
         }
 
@@ -258,7 +284,7 @@ namespace poovd_lab3
                     }
                     break;
             }
-            changeRange?.Invoke(leftX, rightX, newLeft, newRight, normalize);
+            ChangeRange?.Invoke(leftX, rightX, newLeft, newRight, normalize);
         }
 
         private void rightOptions_SelectedIndexChanged(object sender, EventArgs e)
@@ -293,7 +319,7 @@ namespace poovd_lab3
                     }
                     break;
             }
-            changeRange?.Invoke(leftX, rightX, newLeft, newRight, normalize);
+            ChangeRange?.Invoke(leftX, rightX, newLeft, newRight, normalize);
         }
 
         private void keepRange_CheckedChanged(object sender, EventArgs e)
@@ -304,7 +330,7 @@ namespace poovd_lab3
 
         private void BarCharts_FormClosed(object sender, FormClosedEventArgs e)
         {
-            closeCharts?.Invoke();
+            CloseCharts?.Invoke();
         }
     }
 }

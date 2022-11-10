@@ -44,6 +44,8 @@ namespace poovd_lab3
         //координата x для вертикального
         public int vertX = 10;
         bool moveVertLine = false;
+        public event Action<int> ChangeVertical;
+        public event Action<int> ChangeHorizontal;
 
         BarCharts charts;
         //конструктор формы с инициализацией приложения и подключение
@@ -404,11 +406,13 @@ namespace poovd_lab3
                     {
                         vertX = e.Location.X;
                         moveVertLine = false;
+                        ChangeVertical?.Invoke(vertX);
                     }
                     if (moveHorizLine)
                     {
                         horizY = e.Location.Y;
                         moveHorizLine = false;
+                        ChangeHorizontal?.Invoke(horizY);
                     }
                     Bitmap temp = new Bitmap(img);
                     DrawSections(temp);
@@ -556,8 +560,8 @@ namespace poovd_lab3
             {
                 //BarCharts charts = new BarCharts(this, image.brightAmounts, img, vertX, horizY);
                 charts = new BarCharts(this);
-                charts.changeRange += ChangeBrightness;
-                charts.closeCharts += CloseCharts;
+                charts.ChangeRange += ChangeBrightness;
+                charts.CloseCharts += CloseCharts;
                 charts.Show();
             }
         }
