@@ -117,7 +117,7 @@
             this.leftOptions.Name = "leftOptions";
             this.leftOptions.Size = new System.Drawing.Size(345, 24);
             this.leftOptions.TabIndex = 2;
-            this.leftOptions.SelectedIndexChanged += new System.EventHandler(this.leftOptions_SelectedIndexChanged);
+            this.leftOptions.SelectedIndexChanged += new System.EventHandler(this.LeftOptions_SelectedIndexChanged);
             // 
             // changeRight
             // 
@@ -151,7 +151,7 @@
             this.rightOptions.Name = "rightOptions";
             this.rightOptions.Size = new System.Drawing.Size(344, 24);
             this.rightOptions.TabIndex = 0;
-            this.rightOptions.SelectedIndexChanged += new System.EventHandler(this.rightOptions_SelectedIndexChanged);
+            this.rightOptions.SelectedIndexChanged += new System.EventHandler(this.RightOptions_SelectedIndexChanged);
             // 
             // keepRange
             // 
@@ -162,7 +162,7 @@
             this.keepRange.TabIndex = 6;
             this.keepRange.Text = "Сохранить диапазон";
             this.keepRange.UseVisualStyleBackColor = true;
-            this.keepRange.CheckedChanged += new System.EventHandler(this.keepRange_CheckedChanged);
+            this.keepRange.CheckedChanged += new System.EventHandler(this.KeepRange_CheckedChanged);
             // 
             // BarCharts
             // 

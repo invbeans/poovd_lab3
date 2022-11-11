@@ -35,33 +35,137 @@ namespace poovd_lab3
         //изначально равна 0 - изображение строится полностью
         private int highestRow = 0;
 
-        //Bitmap tempBrightChanged;
+        //переменные для хранения данных о препарировании гистограммы
+        //curLeft и curRight - текущие левая и правая границы диапазона
+        //newLeft и newRight - значения яркостей, присваиваемые пикселам вне диапазона
         ushort curLeft, curRight, newLeft, newRight;
+
+        //флаги, normalize - будут ли нормироваться яркости в пределах препарируемого диапазона, brightsChanged - изменялся ли диапазон яркостей
         bool normalize, brightsChanged = false;
+
+        //событие для перестраивания изображения в основной форме
         public event Action RedrawImage;
 
+        //переменная класса второго окна с гистограммой
         BarCharts charts;
+
         //конструктор формы с инициализацией приложения и подключение
         //описанных ниже обработчиков событий к элементам управления
         public Form1()
         {
             InitializeComponent();
-            //g = imageContainer.CreateGraphics();
-            //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             loadButton.Click += LoadButton_Click;
             scrollStepInput.TextChanged += ScrollStepInput_TextChanged;
             radioShift1.CheckedChanged += RadioShift1_CheckedChanged;
             radioShift2.CheckedChanged += RadioShift2_CheckedChanged;
             radioShift3.CheckedChanged += RadioShift3_CheckedChanged;
             imageContainer.MouseMove += ImageContainer_MouseMove;
-            imageContainer.MouseClick += ImageContainer_Click;
-
-            //charts = new BarCharts();
-            //charts.changeRange += ChangeBrightness;
-            
+            imageContainer.MouseClick += ImageContainer_Click;          
         }
 
         private void Form1_Load(object sender, EventArgs e) { }
+
+        //обработчик нажатия на кнопку "Окно гистаграмм"
+        //инициализирует объект класса BarCharts и подписывает к событиям
+        //изменения яркостей по диапазону и закрытию окна методы; открывает новое окно
+        //параметр sender - объект, вызвавший событие(кнопка openCharts)
+        //параметр e - объект, содержащий данные о событии
+        private void OpenCharts_Click(object sender, EventArgs e)
+        {
+            if (image != null && charts == null)
+            {
+                charts = new BarCharts(this);
+                charts.ChangeRange += ChangeBrightness;
+                charts.CloseCharts += CloseCharts;
+                charts.Show();
+            }
+        }
+
+        //метод, обрабатывающий закрытие дополнительного окна
+        //присваивает null объекту класса окна гистаграмм и возвращает оригинальное изображение
+        //без изменений яркостей
+        private void CloseCharts()
+        {
+            charts = null;
+            imageContainer.Image = img;
+            brightsChanged = false;
+        }
+
+        //метод для изменения яркостей изображения, согласно выбору на гистограмме
+        //принимает параметры: curLeft, curRight - левая и правая границы диапазона, newLeft, newRight - новые яркости
+        //за границами диапазона, normalize - будет ли производиться нормирование яркостей
+        public void ChangeBrightness(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, bool normalize)
+        {
+            //параметры сохраняются в переменных для перерисовки, вызванной из Form1 (изменение сдвига кодов)
+            this.curRight = curRight;
+            this.curLeft = curLeft;
+            this.newRight = newRight;
+            this.newLeft = newLeft;
+            this.normalize = normalize;
+            //флаг, показывающий, что яркости изображения изменены
+            brightsChanged = true;
+            Bitmap temp = new Bitmap(img);
+            //если нормировка, то изменения в диапазоне яркостей, иначе вне диапазона
+            if (normalize) NormalizeInRange(curLeft, curRight, temp);
+            else ChangeOutRange(curLeft, curRight, newLeft, newRight, temp);
+            imageContainer.Image = temp;
+        }
+
+        //метод для замены яркостей пикселей за границами диапазона, выделенного на гистаграмме
+        //принимает параметры: curLeft, curRight - границы диапазона, newLeft, newRight - новые яркости
+        //temp - переменная для изменения яркостей и установки нового изображения на форме
+        private void ChangeOutRange(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, Bitmap temp)
+        {
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    ushort current = temp.GetPixel(x, y).B;
+                    //если яркость пиксела вне диапазона, его заменяют в соответствии с ближайшей границей
+                    if (current < curLeft)
+                    {
+                        temp.SetPixel(x, y, Color.FromArgb(newLeft, newLeft, newLeft));
+                    }
+                    if (current > curRight)
+                    {
+                        temp.SetPixel(x, y, Color.FromArgb(newRight, newRight, newRight));
+                    }
+                }
+            }
+        }
+
+        //метод для замены яркостей пикселей в пределах диапазона и нормировки яркостей
+        //принимает параметры: curLeft, curRight - границы диапазона,
+        //temp - переменная для изменения яркостей и установки нового изображения на форме
+        private void NormalizeInRange(ushort curLeft, ushort curRight, Bitmap temp)
+        {
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    ushort current = temp.GetPixel(x, y).B;
+                    //если яркость пиксела в пределах обоих границ диапазона, то она приводится к
+                    //диапазону 0 - 255
+                    if (current > curLeft && current < curRight)
+                    {
+                        ushort newBright = (ushort)((current - curLeft) * 255 / (curRight - curLeft));
+                        temp.SetPixel(x, y, Color.FromArgb(newBright, newBright, newBright));
+                    }
+                }
+            }
+        }
+
+        //метод для отображения всех изображений на экранной форме - основного и обзорного
+        //принимает параметры shift - сдвиг кодов пикселей и highestRow - верхний ряд изображения
+        private void ShowImages(int shift, int highestRow)
+        {
+            img = image.GetBitmap(shift, highestRow);
+            //если открыто окно с гистаграммой, яркости пикселов основного изображения изменяются в соответствии с препарированием
+            if (charts != null && brightsChanged) ChangeBrightness(curLeft, curRight, newLeft, newRight, normalize);
+            imageContainer.Image = img;
+            //построение обзорного изображения по изображению в формате Bitmap
+            overviewContainer.Image = image.BuildOverviewImage(shift);
+        }
 
         //метод для выбора изображения в окне Проводника,
         //возвращает строку - путь к выбранному изображению
@@ -142,70 +246,6 @@ namespace poovd_lab3
             else return false;
         }
 
-        public void ChangeBrightness(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, bool normalize)
-        {
-            //замена яркостей за диапазоном граничной
-            //это только тест, нужно прикрутить опции
-            this.curRight = curRight;
-            this.curLeft = curLeft;
-            this.newRight = newRight;
-            this.newLeft = newLeft;
-            this.normalize = normalize;
-            brightsChanged = true;
-            Bitmap temp = new Bitmap(img);
-            if (normalize) NormalizeInRange(curLeft, curRight, temp);
-            else ChangeOutRange(curLeft, curRight, newLeft, newRight, temp);
-            //Bitmap temp = new Bitmap(tempBrightChanged);
-            imageContainer.Image = temp;   
-        }
-
-        private void ChangeOutRange(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, Bitmap temp) {
-            for (int y = 0; y < img.Height; y++)
-            {
-                for (int x = 0; x < img.Width; x++)
-                {
-                    ushort current = temp.GetPixel(x, y).B;
-                    if (current < curLeft)
-                    {
-                        temp.SetPixel(x, y, Color.FromArgb(newLeft, newLeft, newLeft));
-                    }
-                    if (current > curRight)
-                    {
-                        temp.SetPixel(x, y, Color.FromArgb(newRight, newRight, newRight));
-                    }
-                }
-            }
-        }
-
-        private void NormalizeInRange(ushort curLeft, ushort curRight, Bitmap temp) {
-            for (int y = 0; y < img.Height; y++)
-            {
-                for (int x = 0; x < img.Width; x++)
-                {
-                    ushort current = temp.GetPixel(x, y).B;
-                    if(current > curLeft && current < curRight)
-                    {
-                        ushort newBright = (ushort)((current - curLeft) * 255 / (curRight - curLeft));
-                        temp.SetPixel(x, y, Color.FromArgb(newBright, newBright, newBright));
-                    }
-                }
-            }
-        }
-
-        //метод отображения всех изображений на экранной форме
-        private void ShowImages(int shift, int highestRow)
-        {
-            img = image.GetBitmap(shift, highestRow);
-            if (charts != null && brightsChanged) ChangeBrightness(curLeft, curRight, newLeft, newRight, normalize);
-            //else
-            //{
-              //  Bitmap temp = new Bitmap(img);
-            //}
-            imageContainer.Image = img;
-            //построение обзорного изображения по изображению в формате Bitmap
-            overviewContainer.Image = image.BuildOverviewImage(shift);
-        }
-
         //обработчик нажатия на кнопку загрузки изображения
         //вызывает метод открытия окна Проводника
         //параметр sender - объект, вызвавший событие (кнопка loadButton)
@@ -235,9 +275,9 @@ namespace poovd_lab3
                 lineFileName.Text = fileName.Substring(fileName.LastIndexOf(@"\") + 1);
                 //текст с подсказкой становится видимым
                 altText.Visible = true;
-                //charts = new BarCharts(this);
+                //очищение объекта формы с гистограммой, если раньше он использовался 
                 charts = null;
-                //tempBrightChanged = null;
+                //флагу изменения яркостей с помощью гистограммы присваивается false
                 brightsChanged = false;
             }
         }
@@ -251,6 +291,7 @@ namespace poovd_lab3
             if (image != null)
             {
                 ShowImages(0, highestRow);
+                //если открыто окно с гистограммой, изображение перерисовывается в соответствии с препарированием
                 if (charts != null) RedrawImage?.Invoke();
                 //если фрагмент для увеличения выбран, он перестраивается с новым сдвигом
                 if (isZoomChosen)
@@ -339,7 +380,6 @@ namespace poovd_lab3
                     //сохраняем выбранный верхний ряд в переменной
                     highestRow = highestY;
                     imageContainer.Image = img;
-                    //tempBrightChanged = new Bitmap(img);
                     //если высота отображаемого изображения меньше 60, фрагмент для увеличения тоже уменьшается
                     width = (image.Height - highestRow < 60) ? image.Height - highestRow : 60;
                     height = width;
@@ -375,8 +415,6 @@ namespace poovd_lab3
                 yValue.Text = (e.Location.Y + highestRow).ToString();
             }
         }
-
-        
 
         //метод для определения увеличиваемого фрагмента изображения
         //принимает точку на изображении, которую выбрал пользователь
@@ -508,27 +546,6 @@ namespace poovd_lab3
             {
                 BuildZoomedImage(part);
             }
-        }
-
-        private void OpenCharts_Click(object sender, EventArgs e)
-        {
-            if(image != null && charts == null)
-            {
-                //BarCharts charts = new BarCharts(this, image.brightAmounts, img, vertX, horizY);
-                charts = new BarCharts(this);
-                charts.ChangeRange += ChangeBrightness;
-                charts.CloseCharts += CloseCharts;
-                charts.Show();
-            }
-        }
-
-        private void CloseCharts()
-        {
-            charts = null;
-            //tempBrightChanged = new Bitmap(img);
-            imageContainer.Image = img;
-            //tempBrightChanged = null;
-            brightsChanged = false;
         }
     }
 }
