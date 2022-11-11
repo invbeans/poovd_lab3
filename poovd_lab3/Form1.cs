@@ -35,17 +35,10 @@ namespace poovd_lab3
         //изначально равна 0 - изображение строится полностью
         private int highestRow = 0;
 
-        //private Graphics g;
-        private Pen pen = new Pen(Color.Red, 3);
-
-        //координата y для горизонтального
-        public int horizY = 10;
-        bool moveHorizLine = false;
-        //координата x для вертикального
-        public int vertX = 10;
-        bool moveVertLine = false;
-        public event Action<int> ChangeVertical;
-        public event Action<int> ChangeHorizontal;
+        //Bitmap tempBrightChanged;
+        ushort curLeft, curRight, newLeft, newRight;
+        bool normalize, brightsChanged = false;
+        public event Action RedrawImage;
 
         BarCharts charts;
         //конструктор формы с инициализацией приложения и подключение
@@ -61,9 +54,7 @@ namespace poovd_lab3
             radioShift2.CheckedChanged += RadioShift2_CheckedChanged;
             radioShift3.CheckedChanged += RadioShift3_CheckedChanged;
             imageContainer.MouseMove += ImageContainer_MouseMove;
-            imageContainer.MouseDoubleClick += ImageContainer_DoubleClick;
-            imageContainer.MouseDown += ImageContainer_MouseDown;
-            imageContainer.MouseUp += ImageContainer_MouseUp;
+            imageContainer.MouseClick += ImageContainer_Click;
 
             //charts = new BarCharts();
             //charts.changeRange += ChangeBrightness;
@@ -151,24 +142,21 @@ namespace poovd_lab3
             else return false;
         }
 
-        private void DrawSections(Bitmap temp)
-        {
-            using (var g = Graphics.FromImage(temp))
-            {
-                g.DrawLine(pen, new Point(vertX, 0), new Point(vertX, temp.Height - 1));
-                g.DrawLine(pen, new Point(0, horizY), new Point(temp.Width - 1, horizY));
-            }
-            imageContainer.Image = temp;
-        }
-
         public void ChangeBrightness(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, bool normalize)
         {
             //замена яркостей за диапазоном граничной
             //это только тест, нужно прикрутить опции
+            this.curRight = curRight;
+            this.curLeft = curLeft;
+            this.newRight = newRight;
+            this.newLeft = newLeft;
+            this.normalize = normalize;
+            brightsChanged = true;
             Bitmap temp = new Bitmap(img);
             if (normalize) NormalizeInRange(curLeft, curRight, temp);
             else ChangeOutRange(curLeft, curRight, newLeft, newRight, temp);
-            DrawSections(temp);
+            //Bitmap temp = new Bitmap(tempBrightChanged);
+            imageContainer.Image = temp;   
         }
 
         private void ChangeOutRange(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, Bitmap temp) {
@@ -208,8 +196,12 @@ namespace poovd_lab3
         private void ShowImages(int shift, int highestRow)
         {
             img = image.GetBitmap(shift, highestRow);
-            Bitmap temp = new Bitmap(img);
-            DrawSections(temp);
+            if (charts != null && brightsChanged) ChangeBrightness(curLeft, curRight, newLeft, newRight, normalize);
+            //else
+            //{
+              //  Bitmap temp = new Bitmap(img);
+            //}
+            imageContainer.Image = img;
             //построение обзорного изображения по изображению в формате Bitmap
             overviewContainer.Image = image.BuildOverviewImage(shift);
         }
@@ -245,6 +237,8 @@ namespace poovd_lab3
                 altText.Visible = true;
                 //charts = new BarCharts(this);
                 charts = null;
+                //tempBrightChanged = null;
+                brightsChanged = false;
             }
         }
 
@@ -257,6 +251,7 @@ namespace poovd_lab3
             if (image != null)
             {
                 ShowImages(0, highestRow);
+                if (charts != null) RedrawImage?.Invoke();
                 //если фрагмент для увеличения выбран, он перестраивается с новым сдвигом
                 if (isZoomChosen)
                 {
@@ -274,6 +269,7 @@ namespace poovd_lab3
             if (image != null)
             {
                 ShowImages(1, highestRow);
+                if (charts != null) RedrawImage?.Invoke();
                 if (isZoomChosen)
                 {
                     BuildZoomedImage(part);
@@ -290,6 +286,7 @@ namespace poovd_lab3
             if (image != null)
             {
                 ShowImages(2, highestRow);
+                if (charts != null) RedrawImage?.Invoke();
                 if (isZoomChosen)
                 {
                     BuildZoomedImage(part);
@@ -342,8 +339,7 @@ namespace poovd_lab3
                     //сохраняем выбранный верхний ряд в переменной
                     highestRow = highestY;
                     imageContainer.Image = img;
-                    Bitmap temp = new Bitmap(img);
-                    DrawSections(temp);
+                    //tempBrightChanged = new Bitmap(img);
                     //если высота отображаемого изображения меньше 60, фрагмент для увеличения тоже уменьшается
                     width = (image.Height - highestRow < 60) ? image.Height - highestRow : 60;
                     height = width;
@@ -380,47 +376,7 @@ namespace poovd_lab3
             }
         }
 
-        //где то тут должны быть тягания палочек
-        private void ImageContainer_MouseDown(object sender, MouseEventArgs e)
-        {
-            if(image != null)
-            {
-                if(e.Location.X >= vertX - 2 && e.Location.X <= vertX + 2)
-                {
-                    moveVertLine = true;
-                }
-                if(e.Location.Y >= horizY - 2 && e.Location.Y <= horizY + 2)
-                {
-                    moveHorizLine = true;
-                }
-            }
-        }
-
-        private void ImageContainer_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (image != null)
-            {
-                if (moveVertLine || moveHorizLine)
-                {
-                    if (moveVertLine)
-                    {
-                        vertX = e.Location.X;
-                        moveVertLine = false;
-                        ChangeVertical?.Invoke(vertX);
-                    }
-                    if (moveHorizLine)
-                    {
-                        horizY = e.Location.Y;
-                        moveHorizLine = false;
-                        ChangeHorizontal?.Invoke(horizY);
-                    }
-                    Bitmap temp = new Bitmap(img);
-                    DrawSections(temp);
-                   // charts = new BarCharts(this); //?????
-                }
-                
-            }
-        }
+        
 
         //метод для определения увеличиваемого фрагмента изображения
         //принимает точку на изображении, которую выбрал пользователь
@@ -478,7 +434,7 @@ namespace poovd_lab3
         //обработчик нажатия на изображение, увеличивает выбранный пользователем фрагмент
         //параметр sender - объект, вызвавший событие (поле с изображением imageContainer)
         //параметр e - объект, содержащий данные о событии
-        private void ImageContainer_DoubleClick(object sender, MouseEventArgs e)
+        private void ImageContainer_Click(object sender, MouseEventArgs e)
         {
             if (image != null)
             {
@@ -569,9 +525,10 @@ namespace poovd_lab3
         private void CloseCharts()
         {
             charts = null;
-            Bitmap temp = new Bitmap(img);
-            DrawSections(temp);
-            imageContainer.Image = temp;
+            //tempBrightChanged = new Bitmap(img);
+            imageContainer.Image = img;
+            //tempBrightChanged = null;
+            brightsChanged = false;
         }
     }
 }

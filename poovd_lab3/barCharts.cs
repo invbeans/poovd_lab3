@@ -15,12 +15,7 @@ namespace poovd_lab3
     public partial class BarCharts : Form
     {
         Form1 parent;
-        ushort[] vertical;
-        ushort[] horizontal;
         ushort[] allImage = new ushort[256];
-        Bitmap img;
-        int vertX;
-        int horizY;
         bool moveLeft = false;
         bool moveRight = false;
         public event Action<ushort, ushort, ushort, ushort, bool> ChangeRange;
@@ -35,8 +30,8 @@ namespace poovd_lab3
         {
             InitializeComponent();
             brightChart.MouseDown += brightChart_MouseDown;
-            brightChart.MouseUp += brightChart_MouseUp;
-            brightChart.MouseMove += brightChart_MouseMove;
+            brightChart.MouseUp += BrightChart_MouseUp;
+            brightChart.MouseMove += BrightChart_MouseMove;
             leftOptions.SelectedIndex = 1;
             rightOptions.SelectedIndex = 1;
             brightChart.Series[0].Points.Clear();
@@ -45,84 +40,9 @@ namespace poovd_lab3
         public BarCharts(Form1 parent): this()
         {
             this.parent = parent;
-            parent.ChangeHorizontal += FillHorizontal;
-            parent.ChangeVertical += FillVertical;
-            this.img = parent.img;
-            this.vertX = parent.vertX;
-            this.horizY = parent.horizY;   
+            parent.RedrawImage += RedrawImage;
             this.allImage = parent.image.brightAmounts;
             brightChart.Series[0].Points.DataBindY(allImage);
-            vertChart.Visible = false;
-            horizChart.Visible = false;
-        }
-
-        // иксы и какие в них графики
-        /*public BarCharts(Form1 parent, ushort[] brightAmounts, Bitmap img, int vertX, int horixY): this()
-        {
-            this.parent = parent;
-            this.img = img;
-            this.vertX = vertX;
-            this.horizY = horixY;
-            this.allImage = brightAmounts;
-            brightChart.Series[0].Points.DataBindY(allImage);
-            vertChart.Visible = false;
-            horizChart.Visible = false;
-        }*/
-
-        private void гистограммаГоризонтальногоСеченияToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FillHorizontal(horizY);
-            horizChart.Visible = true;
-            brightChart.Visible = false;
-            keepRange.Visible = false;
-            vertChart.Visible = false;
-            changeLeft.Visible = false;
-            changeRight.Visible = false;
-        }
-
-        private void гистограммаВертикальногоСеченияToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FillVertical(vertX);
-            vertChart.Visible = true;
-            brightChart.Visible = false;
-            keepRange.Visible = false;
-            horizChart.Visible = false;
-            changeLeft.Visible = false;
-            changeRight.Visible = false;
-        }
-
-        private void гистограммыСечениToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // правый 0-ая стриплин, левый 1-ый стриплин зазазазахпхп
-            brightChart.Series[0].Points.DataBindY(allImage);
-            brightChart.Visible = true;
-            keepRange.Visible = true;
-            horizChart.Visible = false;
-            vertChart.Visible = false; 
-            changeLeft.Visible = true;
-            changeRight.Visible = true;
-        }
-
-        private void FillVertical(int vertX)
-        {
-            vertical = new ushort[img.Height];
-            for (int i = 0; i < vertical.Length; i++)
-            {
-                vertical[i] = img.GetPixel(vertX, i).B;
-            }
-            vertChart.Series[0].Points.Clear();
-            vertChart.Series[0].Points.DataBindY(vertical);
-        }
-
-        private void FillHorizontal(int horizY)
-        {
-            horizontal = new ushort[img.Width];
-            for (int i = 0; i < horizontal.Length; i++)
-            {
-                horizontal[i] = img.GetPixel(i, horizY).B;
-            }
-            horizChart.Series[0].Points.Clear();
-            horizChart.Series[0].Points.DataBindY(horizontal);
         }
 
         private void brightChart_MouseDown(object sender, MouseEventArgs e)
@@ -132,32 +52,44 @@ namespace poovd_lab3
             {
                 int rightX = (int)brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset;
                 int leftX = (int)brightChart.ChartAreas[0].AxisX.StripLines[1].IntervalOffset;
-                if (X >= rightX - 3 && X <= rightX + 3)
+                if (X >= rightX - 3 && X <= rightX + 3 && !moveLeft)
                 {
                     moveRight = true;
                 }
-                if (X >= leftX - 3 && X <= leftX + 3 && !moveRight) //может начать падать об одновременное движение
+                if (X >= leftX - 3 && X <= leftX + 3 && !moveRight)
                 {
                     moveLeft = true;
                 }
             }
         }
 
-        private void moveBothStripLines(bool moveLeft, bool moveRight, int X)
+        private void MoveBothStripLines(int X)
         {
             if (moveLeft)
             {
                 int temp = X + range;
-                brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset = (temp < 256) ? temp : 255;
+                rightX = (ushort)((temp < 256) ? temp : 255);
+                brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset = rightX;
+                rightBright.Text = rightX.ToString();
+
+                leftX = (ushort)((temp < 256) ? X : 255 - range);
+                brightChart.ChartAreas[0].AxisX.StripLines[1].IntervalOffset = leftX;
+                leftBright.Text = leftX.ToString();
             }
             if (moveRight)
             {
                 int temp = X - range;
-                brightChart.ChartAreas[0].AxisX.StripLines[1].IntervalOffset = (temp > -1) ? temp : 0;
+                leftX = (ushort)((temp > -1) ? temp : 0);
+                brightChart.ChartAreas[0].AxisX.StripLines[1].IntervalOffset = leftX;
+                leftBright.Text = leftX.ToString();
+
+                rightX = (ushort)((temp > -1) ? X : range);
+                brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset = rightX;
+                rightBright.Text = rightX.ToString();
             }
         }
 
-        private void brightChart_MouseMove(object sender, MouseEventArgs e)
+        private void BrightChart_MouseMove(object sender, MouseEventArgs e)
         {
             int X = -1;
             try
@@ -185,29 +117,33 @@ namespace poovd_lab3
             {
                 if (moveRight)
                 {
-                    if (keepR) moveBothStripLines(moveLeft, moveRight, X);
-                    if (leftX > X - 5)
+                    if (keepR) MoveBothStripLines(X);
+                    else
                     {
-                        moveRight = false;
-                        return;
-                    }
-                    
-                    brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset = X;
-                    rightX = (ushort)X;
-                    rightBright.Text = X.ToString();
+                        if (leftX > X - 5)
+                        {
+                            moveRight = false;
+                            return;
+                        }
+                        brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset = X;
+                        rightX = (ushort)X;
+                        rightBright.Text = X.ToString();
+                    }                    
                 }
                 if (moveLeft)
                 {
-                    if (keepR) moveBothStripLines(moveLeft, moveRight, X);
-                    if (rightX < X + 5)
+                    if (keepR) MoveBothStripLines(X);
+                    else
                     {
-                        moveLeft = false;
-                        return;
+                        if (rightX < X + 5)
+                        {
+                            moveLeft = false;
+                            return;
+                        }
+                        brightChart.ChartAreas[0].AxisX.StripLines[1].IntervalOffset = X;
+                        leftX = (ushort)X;
+                        leftBright.Text = X.ToString();
                     }
-                    
-                    brightChart.ChartAreas[0].AxisX.StripLines[1].IntervalOffset = X;
-                    leftX = (ushort)X;
-                    leftBright.Text = X.ToString();
                 }
             }
             else // подъёбка
@@ -215,10 +151,9 @@ namespace poovd_lab3
                 if (moveLeft) moveLeft = false;
                 if (moveRight) moveRight = false;
             }
-            
         }
 
-        private void brightChart_MouseUp(object sender, MouseEventArgs e)
+        private void BrightChart_MouseUp(object sender, MouseEventArgs e)
         {
             int X = -1;
             try
@@ -227,37 +162,24 @@ namespace poovd_lab3
             }
             catch (Exception)
             {
-                return; //????
+                return;
             }
-            
+
             if (X >= 0 && X < 256)
             {
                 if (moveRight) moveRight = false;
                 if (moveLeft) moveLeft = false;
-                /*if (moveRight)
-                {
-                    brightChart.ChartAreas[0].AxisX.StripLines[0].IntervalOffset = X;
-                    rightX = (ushort)X;
-                    rightBright.Text = X.ToString();
-                    moveRight = false;
-                }
-                if (moveLeft)
-                {
-                    brightChart.ChartAreas[0].AxisX.StripLines[1].IntervalOffset = X;
-                    leftX = (ushort)X;
-                    leftBright.Text = X.ToString();
-                    moveLeft = false;
-                }*/
                 ChangeRange?.Invoke(leftX, rightX, newLeft, newRight, normalize);
             }
         }
 
+        private void RedrawImage()
+        {
+            ChangeRange?.Invoke(leftX, rightX, newLeft, newRight, normalize);
+        }
+
         private void leftOptions_SelectedIndexChanged(object sender, EventArgs e)
         {
-            /*Считать равными L
-Считать равными минимальному значению 0
-Считать равными 0
-Отображать в диапазон [0, 255]*/
             normalize = false;
             switch (leftOptions.SelectedIndex)
             {
@@ -289,10 +211,6 @@ namespace poovd_lab3
 
         private void rightOptions_SelectedIndexChanged(object sender, EventArgs e)
         {
-            /*Считать равными R
-Считать равными максимальному значению 255
-Считать равными 0
-Отображать в диапазон [0, 255]*/
             normalize = false;
             switch (rightOptions.SelectedIndex)
             {
