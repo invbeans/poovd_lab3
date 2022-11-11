@@ -23,7 +23,7 @@ namespace poovd_lab3
         //флаги для проверки движения движков
         bool moveLeft = false, moveRight = false;
 
-        //ChangeRange - событие изменения диапазона, выделенного на гистаграмме
+        //ChangeRange - событие изменения диапазона, выделенного на гистограмме
         public event Action<ushort, ushort, ushort, ushort, bool> ChangeRange;
 
         //CloseCharts - событие закрытия дополнительного окна

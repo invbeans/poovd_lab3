@@ -431,7 +431,7 @@
             this.openCharts.Name = "openCharts";
             this.openCharts.Size = new System.Drawing.Size(208, 34);
             this.openCharts.TabIndex = 13;
-            this.openCharts.Text = "Окно гистаграмм";
+            this.openCharts.Text = "Окно гистограмм";
             this.openCharts.UseVisualStyleBackColor = true;
             this.openCharts.Click += new System.EventHandler(this.OpenCharts_Click);
             // 

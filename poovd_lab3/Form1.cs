@@ -65,7 +65,7 @@ namespace poovd_lab3
 
         private void Form1_Load(object sender, EventArgs e) { }
 
-        //обработчик нажатия на кнопку "Окно гистаграмм"
+        //обработчик нажатия на кнопку "Окно гистограмм"
         //инициализирует объект класса BarCharts и подписывает к событиям
         //изменения яркостей по диапазону и закрытию окна методы; открывает новое окно
         //параметр sender - объект, вызвавший событие(кнопка openCharts)
@@ -82,7 +82,7 @@ namespace poovd_lab3
         }
 
         //метод, обрабатывающий закрытие дополнительного окна
-        //присваивает null объекту класса окна гистаграмм и возвращает оригинальное изображение
+        //присваивает null объекту класса окна гистограмм и возвращает оригинальное изображение
         //без изменений яркостей
         private void CloseCharts()
         {
@@ -111,7 +111,7 @@ namespace poovd_lab3
             imageContainer.Image = temp;
         }
 
-        //метод для замены яркостей пикселей за границами диапазона, выделенного на гистаграмме
+        //метод для замены яркостей пикселей за границами диапазона, выделенного на гистограмме
         //принимает параметры: curLeft, curRight - границы диапазона, newLeft, newRight - новые яркости
         //temp - переменная для изменения яркостей и установки нового изображения на форме
         private void ChangeOutRange(ushort curLeft, ushort curRight, ushort newLeft, ushort newRight, Bitmap temp)
@@ -160,7 +160,7 @@ namespace poovd_lab3
         private void ShowImages(int shift, int highestRow)
         {
             img = image.GetBitmap(shift, highestRow);
-            //если открыто окно с гистаграммой, яркости пикселов основного изображения изменяются в соответствии с препарированием
+            //если открыто окно с гистограммой, яркости пикселов основного изображения изменяются в соответствии с препарированием
             if (charts != null && brightsChanged) ChangeBrightness(curLeft, curRight, newLeft, newRight, normalize);
             imageContainer.Image = img;
             //построение обзорного изображения по изображению в формате Bitmap

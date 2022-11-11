@@ -176,7 +176,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "BarCharts";
-            this.Text = "Гистаграмма";
+            this.Text = "Гистограмма";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.BarCharts_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.brightChart)).EndInit();
             this.changeLeft.ResumeLayout(false);
