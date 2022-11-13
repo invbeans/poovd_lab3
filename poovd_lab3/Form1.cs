@@ -379,7 +379,8 @@ namespace poovd_lab3
                     img = image.GetBitmap(shift, highestY);
                     //сохраняем выбранный верхний ряд в переменной
                     highestRow = highestY;
-                    imageContainer.Image = img;
+                    if (charts != null) RedrawImage?.Invoke();
+                    else imageContainer.Image = img;
                     //если высота отображаемого изображения меньше 60, фрагмент для увеличения тоже уменьшается
                     width = (image.Height - highestRow < 60) ? image.Height - highestRow : 60;
                     height = width;

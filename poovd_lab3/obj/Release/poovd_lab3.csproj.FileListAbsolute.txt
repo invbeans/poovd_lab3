@@ -10,3 +10,7 @@ C:\Users\MSI\source\repos\poovd_lab3\poovd_lab3\obj\Release\poovd_lab3.csproj.Ge
 C:\Users\MSI\source\repos\poovd_lab3\poovd_lab3\obj\Release\poovd_lab3.csproj.CoreCompileInputs.cache
 C:\Users\MSI\source\repos\poovd_lab3\poovd_lab3\obj\Release\poovd_lab3.exe
 C:\Users\MSI\source\repos\poovd_lab3\poovd_lab3\obj\Release\poovd_lab3.pdb
+C:\Users\MSI\source\repos\poovd_lab3\poovd_lab3\bin\Release\poovd_lab3.exe.manifest
+C:\Users\MSI\source\repos\poovd_lab3\poovd_lab3\bin\Release\poovd_lab3.application
+C:\Users\MSI\source\repos\poovd_lab3\poovd_lab3\obj\Release\poovd_lab3.exe.manifest
+C:\Users\MSI\source\repos\poovd_lab3\poovd_lab3\obj\Release\poovd_lab3.application
